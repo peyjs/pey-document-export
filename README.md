@@ -1,9 +1,10 @@
-# pey.export
+# pey.document-export
 
-افزونه پی: خروجی HTML فارسی — رندر Markdown روی `pey.markdown.service` و اسمبل سند مستقل راست‌به‌چپ با تم.
+افزونه پی: خروجی گرفتن از اسناد متنی — سند HTML مستقل فارسیِ راست‌به‌چپ با تم (رندر Markdown روی `pey.markdown.service`) و آرشیو zip چندسندی از فایل‌های Markdown. برای خروجی داده عمومی (CSV، اکسل، Word و…) نیست.
 
 ## ساختار
 
+- `docs/requirements.md` — نیازمندی‌ها؛ منبع حقیقت ساخت افزونه.
 - `manifest.json` — قرارداد معتبر افزونه.
 - `index.js` — نقطه‌های ورود `prepare` و `activate` بنیان (فقط سیم‌کشی).
 - `lib/export-service.js` — پیاده‌سازی سرویس.
@@ -21,5 +22,6 @@
 
 ## همچنین ببینید
 
+- `docs/requirements.md` برای «چه چیزی و چرا»؛ سندِ پیش از پیاده‌سازی.
 - `docs/reference.md` برای قرارداد کامل متد و خطاها.
 - `pey.markdown` (رپوی جدا) برای پایپ‌لاین رندر و sanitize.

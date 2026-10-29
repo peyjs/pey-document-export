@@ -1,4 +1,4 @@
-// Verifies the pey.export entry point (prepare/activate wiring).
+// Verifies the pey.document-export entry point (prepare/activate wiring).
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { activate, prepare } from '../index.js';
@@ -31,7 +31,7 @@ function createMarkdownService() {
 test('should_register_service_when_prepared', async () => {
   const context = createPrepareContext();
   const provided = await prepare(context);
-  assert.deepEqual(provided.map(({ name }) => name), ['pey.export.service']);
+  assert.deepEqual(provided.map(({ name }) => name), ['pey.document-export.service']);
   assert.equal(typeof context.onShutdown, 'function');
   assert.equal(typeof context.onDeactivated, 'function');
 });

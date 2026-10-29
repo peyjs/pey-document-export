@@ -1,6 +1,6 @@
 {
-  "name": "pey.export",
-  "version": "0.2.0",
+  "name": "pey.document-export",
+  "version": "0.3.0",
   "type": "module",
   "description": "Standalone themed RTL HTML documents and multi-document Markdown zip archives over Persian Markdown (Parsneshan)",
   "exports": {
@@ -43,7 +43,7 @@
   ],
   "keywords": [
     "pey",
-    "export",
+    "document-export",
     "html",
     "zip",
     "persian",

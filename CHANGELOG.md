@@ -1,6 +1,16 @@
-# Changelog — pey.export
+# Changelog — pey.document-export
 
-All notable changes to `pey.export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
+All notable changes to `pey.document-export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
+
+## [0.3.0] - 2026-10-30
+
+### Added
+
+- `docs/requirements.md` — the requirements document, the construction source of truth for the plugin.
+
+### Changed
+
+- Plugin renamed to `pey.document-export` (service: `pey.document-export.service`, package folder: `pey-document-export`): the former `pey.export` name read as general-purpose data export (CSV, spreadsheets, Word), while the contract only exports Markdown text documents. No behavioral change; the package was unpublished at the time of the rename.
 
 ## [0.2.0]
 

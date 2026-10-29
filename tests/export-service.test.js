@@ -59,7 +59,7 @@ test('should_reject_invalid_theme_when_exported', async () => {
   const { service } = setup();
   const error = await service.exportHtml({ markdown: 'x', theme: 'neon' }).catch((caught) => caught);
   assert.equal(error?.code, 'EXPORT_INVALID_THEME');
-  assert.equal(error?.source, 'pey.export.service');
+  assert.equal(error?.source, 'pey.document-export.service');
   assert.equal(error?.type, 'operational');
   assert.equal(typeof error?.timestamp, 'string');
 });
@@ -80,7 +80,7 @@ test('should_fail_with_structured_error_when_markdown_is_missing', async () => {
   const service = createService({ markdown: null, events: null });
   const error = await service.exportHtml({ markdown: 'x' }).catch((caught) => caught);
   assert.equal(error?.code, 'EXPORT_MARKDOWN_UNAVAILABLE');
-  assert.equal(error?.source, 'pey.export.service');
+  assert.equal(error?.source, 'pey.document-export.service');
   assert.equal(error?.type, 'operational');
   assert.equal(typeof error?.timestamp, 'string');
 });

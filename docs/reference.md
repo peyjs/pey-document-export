@@ -1,4 +1,4 @@
-# مرجع pey.export
+# مرجع pey.document-export
 
 ## هدف
 
@@ -25,7 +25,7 @@
 
 ## API عمومی
 
-**سرویس:** `pey.export.service`.
+**سرویس:** `pey.document-export.service`.
 
 ### `exportHtml({ markdown, title?, theme? })`
 
