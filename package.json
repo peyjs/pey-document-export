@@ -1,0 +1,54 @@
+{
+  "name": "pey.export",
+  "version": "0.2.0",
+  "type": "module",
+  "description": "Standalone themed RTL HTML documents and multi-document Markdown zip archives over Persian Markdown (Parsneshan)",
+  "exports": {
+    ".": "./index.js",
+    "./manifest.json": "./manifest.json",
+    "./lib/export-service.js": "./lib/export-service.js",
+    "./lib/export-zip.js": "./lib/export-zip.js",
+    "./lib/assemble-document.js": "./lib/assemble-document.js",
+    "./lib/file-names.js": "./lib/file-names.js",
+    "./lib/mark-extension.js": "./lib/mark-extension.js",
+    "./lib/persian-extensions.js": "./lib/persian-extensions.js",
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js"
+  },
+  "dependencies": {
+    "@zip.js/zip.js": "^2.23.0",
+    "micromark-util-classify-character": "^2.0.1",
+    "micromark-util-resolve-all": "^2.0.1",
+    "parsneshan": "git+https://github.com/barnevis/parsneshan.git#v0.2.0"
+  },
+  "devDependencies": {
+    "@codemirror/lang-markdown": "^6.5.2",
+    "@codemirror/language": "^6.12.4",
+    "@codemirror/state": "^6.7.4",
+    "pey.markdown": "github:peyjs/pey-markdown#v1.1.0"
+  },
+  "files": [
+    "manifest.json",
+    "index.js",
+    "lib/",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "docs"
+  ],
+  "keywords": [
+    "pey",
+    "export",
+    "html",
+    "zip",
+    "persian",
+    "farsi",
+    "bonyan"
+  ],
+  "license": "MIT"
+}
