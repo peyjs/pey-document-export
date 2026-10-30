@@ -2,29 +2,8 @@
 
 All notable changes to `pey.document-export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
 
-## [0.3.0] - 2026-10-30
+## [1.0.0] - 2026-10-30
 
-### Added
+Initial pey release: Markdown document export — `exportHtml` renders with Persian (Parsneshan) extensions and a local `==highlight==` extension over `pey.markdown.service` and assembles a standalone RTL document (`lang="fa" dir="rtl"`, light/dark/sepia inline themes); `exportZip` packs `{ markdown, title?, path? }` records into one Markdown zip archive (default `pey-documents.zip`, per-segment sanitizing, `..` collapse, ` (2)` suffix on repeats, input order preserved). Declares its dependencies explicitly (@zip.js/zip.js, parsneshan, micromark-util-*; test-only devDependencies include pey.markdown and CodeMirror for the parity suite). `docs/requirements.md` is the construction source of truth; non-text export (PDF, Office, CSV) is an explicit non-goal for this plugin.
 
-- `docs/requirements.md` — the requirements document, the construction source of truth for the plugin.
-
-### Changed
-
-- Plugin renamed to `pey.document-export` (service: `pey.document-export.service`, package folder: `pey-document-export`): the former `pey.export` name read as general-purpose data export (CSV, spreadsheets, Word), while the contract only exports Markdown text documents. No behavioral change; the package was unpublished at the time of the rename.
-
-## [0.2.0]
-
-Initial pey release, derived from the `parsinegar.export` plugin (Parsinegar): renamed to `pey.export` / `pey.export.service` and generalized to the ecosystem. One behavioral rename: the `exportZip` default archive filename changed from `parsinegar-documents.zip` to `pey-documents.zip`.
-
-### Added
-
-- `exportZip({ documents })` packs `{ markdown, title?, path? }` records into one Markdown zip archive (`{ blob, filename: 'pey-documents.zip', mime: 'application/zip' }`) via `@zip.js/zip.js` (native CompressionStream, no workers). Folder paths survive per-segment sanitizing, `..` segments collapse, repeat full paths take a ` (2)` suffix. Structured errors `EXPORT_INVALID_INPUT` and `EXPORT_ZIP_FAILED`.
-- Shared `lib/file-names.js` for the file-name rule (used by both exports).
-
-## [0.1.0]
-
-### Added
-
-- `exportHtml({ markdown, title?, theme? })` renders Markdown with Persian extensions over `pey.markdown.service` and assembles a standalone RTL document (`lang="fa" dir="rtl"`) with minimal inline light/dark/sepia CSS.
-- Local `==highlight==` micromark extension to `<mark>` (attention-based, nested formatting kept).
-- Structured errors (`EXPORT_INVALID_THEME`, `EXPORT_MARKDOWN_UNAVAILABLE`, `EXPORT_RENDER_FAILED`) and `core:service-unavailable` reporting.
+> Incubated in Parsinegar as `parsinegar.export` (0.1.0–0.2.0): generalized to the ecosystem and renamed `pey.export` → `pey.document-export` before this release. That history stays with the source project — the pey release lineage starts here.
