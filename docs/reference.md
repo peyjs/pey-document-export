@@ -14,7 +14,7 @@
 - `lib/persian-extensions.js` — ساخت افزونه‌های micromark پارس‌نشان (اندرزها، لیست فارسی، شعر) و آپشن پاورقی فارسی؛ تنها نقطه تماس با پکیج `parsneshan`.
 - `lib/mark-extension.js` — اکستنشن محلی `==هایلایت==` به `<mark>` (نه CommonMark، نه GFM، نه پارس‌نشان) با مکانیزم attention؛ واگرایی‌های شناخته‌شده: ران سه‌تایی کاملاً literal می‌ماند و فاصله چسبیده به جداکننده تابع flanking است.
 - `lib/assemble-document.js` — اسمبل خالص سند کامل (`lang="fa" dir="rtl"`) با CSS inline سه تم؛ fragment ورودی از قبل sanitizeشده و خام جاسازی می‌شود، فقط عنوان escape می‌شود.
-- `tests/` — تست‌های افزونه آینه فایل‌های سورس.
+- `tests/` — تست‌های افزونه آینه فایل‌های سورس؛ دو استثنا: `export-parity.test.js` (قرارداد خط‌لوله روی خروجی واقعی pey.markdown) و `persian-extensions.js` که فقط رفتاری در همان parity پوشش دارد.
 - `docs/reference.md` — همین فایل.
 - `CHANGELOG.md` — تاریخچه نسخه‌های این افزونه.
 

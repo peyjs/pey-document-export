@@ -112,3 +112,25 @@ test('should_not_report_critical_error_when_dependency_is_lost_after_shutdown', 
   assert.equal(context.events.subscriptions.has('core:service-unavailable'), false);
   assert.equal(reported, null);
 });
+
+test('should_leave_no_stale_listener_when_prepare_runs_twice', async () => {
+  const first = createPrepareContext();
+  await prepare(first);
+  assert.equal(first.events.subscriptions.has('core:service-unavailable'), true);
+
+  const second = createPrepareContext();
+  await prepare(second);
+
+  assert.equal(first.events.subscriptions.has('core:service-unavailable'), false, 'the first listener left the bus');
+  assert.equal(second.events.subscriptions.has('core:service-unavailable'), true, 'the second listener is armed');
+
+  await second.onShutdown();
+  assert.equal(second.events.subscriptions.has('core:service-unavailable'), false);
+});
+
+test('should_fail_startup_loudly_when_the_event_bus_contract_is_missing', async () => {
+  await assert.rejects(
+    () => prepare({ config: {}, events: {}, onShutdown: null, onDeactivated: null, reportCriticalError: () => {} }),
+    (error) => error.code === 'EXPORT_INVALID_INPUT' && error.type === 'startup',
+  );
+});

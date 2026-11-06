@@ -10,9 +10,14 @@ All notable changes to `pey.document-export` are documented in this file. The fo
 - `exportZip` enforces the Markdown dependency like `exportHtml` (`EXPORT_MARKDOWN_UNAVAILABLE`), declared in the manifest per requirement 4-10 ("both methods").
 - The `core:service-unavailable` subscription is released on shutdown/deactivation (and on a repeated `prepare()`); the `activate()` missing-dependency failure is a structured startup error; unused `state.events` removed; the theme error message no longer embeds raw host input.
 
+### Fixed (second review pass)
+
+- A non-string `title` in a zip record reads as the default title instead of crashing the whole archive (matching the documented lenient shapes).
+- A missing or contract-breaking Event Bus in the prepare context fails loudly at startup instead of silently arming nothing; the ZipWriter closes on failure without masking the original error; the stale `{ markdown, events }` JSDoc/`events: null` references are gone.
+
 ### Tests
 
-- Test layout mirrors the sources (`index.test.js`, new `file-names.test.js` / `assemble-document.test.js`), with edge coverage for dot segments, ` (3)` suffixes, lenient zip records, `</title>` escaping, and shutdown unsubscribe; the highlight parity skip is gone (45 tests, 0 skipped).
+- Test layout mirrors the sources (`index.test.js`, new `file-names.test.js` / `assemble-document.test.js` / `mark-extension.test.js`), with edge coverage for dot segments, ` (3)` suffixes, lenient zip records, `</title>` escaping, shutdown unsubscribe, the documented highlight divergences (triple-run literal, flanking spaces), the double-prepare listener release and the loud missing-bus startup (51 tests, 0 skipped).
 
 ## [1.0.0] - 2026-10-30
 

@@ -8,7 +8,7 @@ import { ARCHIVE_FILENAME, createZipBlob, zipEntryPath } from '../lib/export-zip
 // Requirement 4-10: exportZip needs the bound Markdown dependency too, even
 // though it never renders. A stub is enough for the archive tests.
 function createBoundService() {
-  return createService({ markdown: { renderFragment: async () => ({ html: '' }) }, events: null });
+  return createService({ markdown: { renderFragment: async () => ({ html: '' }) } });
 }
 
 async function readEntries(blob) {
@@ -76,7 +76,7 @@ test('should_return_blob_with_archive_name_when_exported', async () => {
 });
 
 test('should_reject_without_markdown_dependency_when_exported', async () => {
-  const service = createService({ markdown: null, events: null });
+  const service = createService({ markdown: null });
   const error = await service.exportZip({ documents: [] }).catch((caught) => caught);
   assert.equal(error.code, 'EXPORT_MARKDOWN_UNAVAILABLE');
   assert.equal(error.source, 'pey.document-export.service');

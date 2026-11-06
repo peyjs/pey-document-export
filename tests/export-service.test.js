@@ -77,7 +77,7 @@ test('should_map_render_failure_when_markdown_fails', async () => {
 });
 
 test('should_fail_with_structured_error_when_markdown_is_missing', async () => {
-  const service = createService({ markdown: null, events: null });
+  const service = createService({ markdown: null });
   const error = await service.exportHtml({ markdown: 'x' }).catch((caught) => caught);
   assert.equal(error?.code, 'EXPORT_MARKDOWN_UNAVAILABLE');
   assert.equal(error?.source, 'pey.document-export.service');

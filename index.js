@@ -48,8 +48,30 @@ export async function prepare(prepareContext) {
   // behind on the Event Bus.
   teardown();
   savedContext = prepareContext;
-  const subscribed = prepareContext.events?.subscribe('core:service-unavailable', handleServiceUnavailable);
-  unsubscribeUnavailable = typeof subscribed === 'function' ? subscribed : null;
+  // The runtime dependency-loss safety net needs the Event Bus contract:
+  // its absence is a broken host, so it fails loudly at startup instead of
+  // silently arming nothing.
+  const subscribe = prepareContext.events?.subscribe;
+  if (typeof subscribe !== 'function') {
+    throw Object.assign(new Error('Prepare context does not provide an Event Bus'), {
+      code: 'EXPORT_INVALID_INPUT',
+      source: SERVICE_NAME,
+      type: 'startup',
+      timestamp: new Date().toISOString(),
+      detail: { reason: 'missing-event-bus' },
+    });
+  }
+  const subscribed = subscribe.call(prepareContext.events, 'core:service-unavailable', handleServiceUnavailable);
+  if (typeof subscribed !== 'function') {
+    throw Object.assign(new Error('The Event Bus did not return an unsubscribe function'), {
+      code: 'EXPORT_INVALID_INPUT',
+      source: SERVICE_NAME,
+      type: 'startup',
+      timestamp: new Date().toISOString(),
+      detail: { reason: 'missing-unsubscribe' },
+    });
+  }
+  unsubscribeUnavailable = subscribed;
   prepareContext.onDeactivated = () => teardown();
   prepareContext.onShutdown = async () => teardown();
   return [{ name: SERVICE_NAME, object: createService(state) }];
