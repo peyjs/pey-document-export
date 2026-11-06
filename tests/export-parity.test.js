@@ -50,7 +50,7 @@ test('should_render_persian_list_and_poem_when_exported', () => {
   assert.ok(poem.includes('parsneshan-verse'), 'verses');
 });
 
-test('should_render_highlight_with_nested_formatting_when_exported', { skip: 'pending upstream mark allowlist in pey.markdown sanitizer' }, () => {
+test('should_render_highlight_with_nested_formatting_when_exported', () => {
   const html = render('این ==متن **مهم**== است.');
   assert.ok(html.includes('<mark>متن <strong>مهم</strong></mark>'), 'mark with nested strong');
 });
@@ -97,7 +97,7 @@ test('should_fallback_sloppy_poem_to_text_when_exported', () => {
   assert.ok(html.includes('بیت اول'), 'content survives as text');
 });
 
-test('should_document_footnote_divergence_with_editor', () => {
+test('should_document_footnote_divergence_when_editor_parses_footnotes', () => {
   // The editor parses [^۱] as a link reference; the export renders GFM
   // footnotes. Pinned so either side gaining footnote support updates this.
   const doc = 'متن[^۱]\n\n[^۱]: توضیح\n';

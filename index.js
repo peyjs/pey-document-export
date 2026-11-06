@@ -1,8 +1,9 @@
 // Pey export plugin: entry point wiring prepare/activate.
 import { MARKDOWN_SERVICE, SERVICE_NAME, createService } from './lib/export-service.js';
 
-const state = { markdown: null, events: null };
+const state = { markdown: null };
 let savedContext = null;
+let unsubscribeUnavailable = null;
 
 /**
  * Reports a critical error when the required Markdown service disappears at
@@ -24,21 +25,33 @@ function handleServiceUnavailable(event) {
 }
 
 /**
+ * Releases this prepare() call's resources: the dependency reference goes
+ * away and the core:service-unavailable listener leaves the Event Bus, so a
+ * lost-dependency event after shutdown can never report a critical error
+ * for a dead plugin.
+ */
+function teardown() {
+  state.markdown = null;
+  if (unsubscribeUnavailable !== null) {
+    unsubscribeUnavailable();
+    unsubscribeUnavailable = null;
+  }
+}
+
+/**
  * Prepares the plugin: builds the service and registers lifecycle hooks.
  * @param {object} prepareContext Bonyan preparation context.
  * @returns {Promise<Array>} Service registration.
  */
 export async function prepare(prepareContext) {
-  state.markdown = null;
-  state.events = prepareContext.events ?? null;
+  // A repeated prepare() call must not leave the previous call's listener
+  // behind on the Event Bus.
+  teardown();
   savedContext = prepareContext;
-  prepareContext.events?.subscribe('core:service-unavailable', handleServiceUnavailable);
-  prepareContext.onDeactivated = () => {
-    state.markdown = null;
-  };
-  prepareContext.onShutdown = async () => {
-    state.markdown = null;
-  };
+  const subscribed = prepareContext.events?.subscribe('core:service-unavailable', handleServiceUnavailable);
+  unsubscribeUnavailable = typeof subscribed === 'function' ? subscribed : null;
+  prepareContext.onDeactivated = () => teardown();
+  prepareContext.onShutdown = async () => teardown();
   return [{ name: SERVICE_NAME, object: createService(state) }];
 }
 
@@ -46,11 +59,19 @@ export async function prepare(prepareContext) {
  * Activates the plugin: binds the Markdown dependency for service methods.
  * @param {Record<string, object>} services Bound declared dependencies.
  * @returns {Promise<void>}
+ * @throws {object} Structured startup error when the required dependency is
+ *   missing — boundary errors are always structured, startup included.
  */
 export async function activate(services) {
   const markdown = services[MARKDOWN_SERVICE];
   if (!markdown) {
-    throw new Error(`Required service is unavailable: ${MARKDOWN_SERVICE}`);
+    throw Object.assign(new Error(`Required service is unavailable: ${MARKDOWN_SERVICE}`), {
+      code: 'EXPORT_MARKDOWN_UNAVAILABLE',
+      source: SERVICE_NAME,
+      type: 'startup',
+      timestamp: new Date().toISOString(),
+      detail: { service: MARKDOWN_SERVICE },
+    });
   }
   state.markdown = markdown;
 }

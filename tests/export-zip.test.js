@@ -5,6 +5,12 @@ import { BlobReader, TextWriter, ZipReader } from '@zip.js/zip.js';
 import { createService } from '../lib/export-service.js';
 import { ARCHIVE_FILENAME, createZipBlob, zipEntryPath } from '../lib/export-zip.js';
 
+// Requirement 4-10: exportZip needs the bound Markdown dependency too, even
+// though it never renders. A stub is enough for the archive tests.
+function createBoundService() {
+  return createService({ markdown: { renderFragment: async () => ({ html: '' }) }, events: null });
+}
+
 async function readEntries(blob) {
   const reader = new ZipReader(new BlobReader(blob));
   try {
@@ -57,7 +63,7 @@ test('should_build_empty_archive_when_documents_missing', async () => {
 });
 
 test('should_return_blob_with_archive_name_when_exported', async () => {
-  const service = createService({ markdown: null, events: null });
+  const service = createBoundService();
   const result = await service.exportZip({
     documents: [{ markdown: '# سلام', title: 'یادداشت', path: 'آموزش' }],
   });
@@ -69,15 +75,22 @@ test('should_return_blob_with_archive_name_when_exported', async () => {
   ]);
 });
 
-test('should_reject_non_array_when_exported', async () => {
+test('should_reject_without_markdown_dependency_when_exported', async () => {
   const service = createService({ markdown: null, events: null });
+  const error = await service.exportZip({ documents: [] }).catch((caught) => caught);
+  assert.equal(error.code, 'EXPORT_MARKDOWN_UNAVAILABLE');
+  assert.equal(error.source, 'pey.document-export.service');
+});
+
+test('should_reject_non_array_when_exported', async () => {
+  const service = createBoundService();
   const error = await service.exportZip({ documents: 'nope' }).catch((caught) => caught);
   assert.ok(error instanceof Error);
   assert.equal(error.code, 'EXPORT_INVALID_INPUT');
 });
 
 test('should_wrap_build_failure_when_exported', async () => {
-  const service = createService({ markdown: null, events: null });
+  const service = createBoundService();
   const broken = {};
   Object.defineProperty(broken, 'markdown', {
     get() {
@@ -87,4 +100,31 @@ test('should_wrap_build_failure_when_exported', async () => {
   const error = await service.exportZip({ documents: [broken] }).catch((caught) => caught);
   assert.ok(error instanceof Error);
   assert.equal(error.code, 'EXPORT_ZIP_FAILED');
+});
+
+test('should_collapse_dot_segments_to_default_when_mapping_paths', () => {
+  assert.equal(zipEntryPath('.', 'x'), 'بدون عنوان/x.md');
+  assert.equal(zipEntryPath('a/../b', 'x'), 'a/بدون عنوان/b/x.md');
+  assert.equal(zipEntryPath('a/./b', 'x'), 'a/بدون عنوان/b/x.md');
+});
+
+test('should_count_past_three_when_paths_repeat_repeatedly', async () => {
+  const blob = await createZipBlob([
+    { markdown: 'a', title: 'x' },
+    { markdown: 'b', title: 'x' },
+    { markdown: 'c', title: 'x' },
+  ]);
+
+  const names = (await readEntries(blob)).map((entry) => entry.filename);
+  assert.deepEqual(names, ['x.md', 'x (2).md', 'x (3).md']);
+  assert.deepEqual((await readEntries(blob)).map((entry) => entry.text), ['a', 'b', 'c'], 'input order preserved');
+});
+
+test('should_tolerate_lenient_records_when_packing', async () => {
+  const blob = await createZipBlob([null, {}, { markdown: '# سلام', title: 'یادداشت' }]);
+
+  const entries = await readEntries(blob);
+  // The two empty records collapse to the default title and never overwrite
+  // each other: the second one gets the numeric suffix.
+  assert.deepEqual(entries.map((entry) => entry.filename).sort(), ['بدون عنوان (2).md', 'بدون عنوان.md', 'یادداشت.md']);
 });

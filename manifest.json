@@ -31,7 +31,7 @@
             { "name": "documents", "type": "Array of { markdown: string, title: string (optional), path: string (optional folder path, '' for root) }" }
           ],
           "returns": "{ blob: Blob, filename: string, mime: 'application/zip' }",
-          "errors": ["EXPORT_INVALID_INPUT", "EXPORT_ZIP_FAILED"]
+          "errors": ["EXPORT_INVALID_INPUT", "EXPORT_MARKDOWN_UNAVAILABLE", "EXPORT_ZIP_FAILED"]
         }
       ]
     }
