@@ -16,7 +16,7 @@ function createMarkdownService(html = '<p>ok</p>') {
 
 function setup(html) {
   const markdown = createMarkdownService(html);
-  return { service: createService({ markdown, events: null }), markdown };
+  return { service: createService({ markdown }), markdown };
 }
 
 test('should_assemble_standalone_document_when_exported', async () => {
@@ -70,7 +70,7 @@ test('should_map_render_failure_when_markdown_fails', async () => {
       throw { code: 'MARKDOWN_RENDER_FAILED', source: 'pey.markdown' };
     },
   };
-  const service = createService({ markdown, events: null });
+  const service = createService({ markdown });
   const error = await service.exportHtml({ markdown: 'x' }).catch((caught) => caught);
   assert.equal(error?.code, 'EXPORT_RENDER_FAILED');
   assert.deepEqual(error?.detail, { cause: 'MARKDOWN_RENDER_FAILED' });

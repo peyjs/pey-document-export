@@ -1,6 +1,6 @@
 {
   "name": "pey.document-export",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "type": "module",
   "description": "Standalone themed RTL HTML documents and multi-document Markdown zip archives over Persian Markdown (Parsneshan)",
   "exports": {
@@ -30,7 +30,8 @@
     "@codemirror/lang-markdown": "^6.5.2",
     "@codemirror/language": "^6.12.4",
     "@codemirror/state": "^6.7.4",
-    "pey.markdown": "github:peyjs/pey-markdown#v1.2.0"
+    "micromark": "^4.0.2",
+    "pey.markdown": "github:peyjs/pey-markdown#v1.2.1"
   },
   "files": [
     "manifest.json",

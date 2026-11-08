@@ -2,6 +2,16 @@
 
 All notable changes to `pey.document-export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
 
+## [1.1.0] - 1405-08-17
+
+Round-2 and round-3 review fixes. MINOR: a new declared startup code replaces the reused operational one and the pey.markdown pin moves.
+
+### Fixed (third review pass)
+
+- The two startup failures of `prepare` (missing Event Bus, missing unsubscribe function) carry the dedicated `EXPORT_EVENT_BUS_INVALID` instead of reusing the operational `EXPORT_INVALID_INPUT` — a host error is no longer indistinguishable from a bad `exportZip` input; registered in the reference (tests updated, missing-unsubscribe test added).
+- The last two stale `events: null` test calls are gone (the second-pass CHANGELOG claim is now literally true); `micromark` is an explicit devDependency of the test that imports it (no ghost transitive reliance); the README structure list matches the actual sources and test files; requirement 8 now documents the `core:service-unavailable` listener.
+- `pey.markdown` pin moves to `#v1.2.1` (the review-fixed release of the renderer).
+
 ## [1.0.1] - 1405-08-15
 
 ### Fixed

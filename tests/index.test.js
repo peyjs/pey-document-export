@@ -131,6 +131,23 @@ test('should_leave_no_stale_listener_when_prepare_runs_twice', async () => {
 test('should_fail_startup_loudly_when_the_event_bus_contract_is_missing', async () => {
   await assert.rejects(
     () => prepare({ config: {}, events: {}, onShutdown: null, onDeactivated: null, reportCriticalError: () => {} }),
-    (error) => error.code === 'EXPORT_INVALID_INPUT' && error.type === 'startup',
+    (error) => error.code === 'EXPORT_EVENT_BUS_INVALID' && error.type === 'startup' && error.detail?.reason === 'missing-event-bus',
+  );
+});
+
+test('should_fail_startup_loudly_when_the_event_bus_returns_no_unsubscribe', async () => {
+  // The second half of the Event Bus contract: subscribe must return an
+  // unsubscribe function, otherwise the safety net can never be released.
+  await assert.rejects(
+    () => prepare({
+      config: {},
+      events: { subscribe: () => 'nope' },
+      onShutdown: null,
+      onDeactivated: null,
+      reportCriticalError: () => {},
+    }),
+    (error) => error.code === 'EXPORT_EVENT_BUS_INVALID'
+      && error.type === 'startup'
+      && error.detail?.reason === 'missing-unsubscribe',
   );
 });

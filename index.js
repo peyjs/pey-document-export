@@ -54,7 +54,7 @@ export async function prepare(prepareContext) {
   const subscribe = prepareContext.events?.subscribe;
   if (typeof subscribe !== 'function') {
     throw Object.assign(new Error('Prepare context does not provide an Event Bus'), {
-      code: 'EXPORT_INVALID_INPUT',
+      code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
       type: 'startup',
       timestamp: new Date().toISOString(),
@@ -64,7 +64,7 @@ export async function prepare(prepareContext) {
   const subscribed = subscribe.call(prepareContext.events, 'core:service-unavailable', handleServiceUnavailable);
   if (typeof subscribed !== 'function') {
     throw Object.assign(new Error('The Event Bus did not return an unsubscribe function'), {
-      code: 'EXPORT_INVALID_INPUT',
+      code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
       type: 'startup',
       timestamp: new Date().toISOString(),

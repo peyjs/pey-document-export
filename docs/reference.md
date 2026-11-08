@@ -61,3 +61,7 @@ const { blob, filename } = await service.exportZip({ documents: [{ markdown: '# 
 - **پاورقی:** ادیتور `[^۱]` را ارجاع پیوندی می‌فهمد، خروجی سکشن پاورقی GFM می‌سازد (تست پین شده).
 - **شعر شل:** ادیتور lenient رندر می‌کند، پارس‌نشان strict fallback به متن می‌دهد (تست پین شده).
 - **شماره نامرتب لیست فارسی:** خروجی از `<ol start>` می‌شمارد (مرورگر ۲/۳ نشان می‌دهد)، ادیتور ارقام سورس را نگه می‌دارد تا بازشماره (تست رفتار خروجی پین شده).
+
+## خطاهای راه‌اندازی
+
+علاوه بر کدهای عملیاتی متدها، شکست‌های زمان `prepare` با کد اختصاصی `EXPORT_EVENT_BUS_INVALID` (type `startup`) گزارش می‌شوند: نبود Event Bus (`detail.reason: 'missing-event-bus'`) و برنگشتن تابع unsubscribe از `subscribe` (`detail.reason: 'missing-unsubscribe'`) — نقض قرارداد میزبان است، نه ورودی نامعتبر متد.
