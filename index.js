@@ -48,11 +48,17 @@ export async function prepare(prepareContext) {
   // behind on the Event Bus.
   teardown();
   savedContext = prepareContext;
+  // The cleanup hooks are armed BEFORE any failible step: a prepare that
+  // throws at any point still leaves the host a hook that releases this
+  // call's resources.
+  prepareContext.onDeactivated = () => teardown();
+  prepareContext.onShutdown = async () => teardown();
   // The runtime dependency-loss safety net needs the Event Bus contract:
   // its absence is a broken host, so it fails loudly at startup instead of
   // silently arming nothing.
   const subscribe = prepareContext.events?.subscribe;
   if (typeof subscribe !== 'function') {
+    savedContext = null;
     throw Object.assign(new Error('Prepare context does not provide an Event Bus'), {
       code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
@@ -63,6 +69,13 @@ export async function prepare(prepareContext) {
   }
   const subscribed = subscribe.call(prepareContext.events, 'core:service-unavailable', handleServiceUnavailable);
   if (typeof subscribed !== 'function') {
+    // The host broke its own contract AFTER the listener was registered:
+    // no unsubscribe handle exists to remove it. Disarming the saved
+    // context makes the orphaned listener inert — the handler dismisses
+    // immediately without a saved context, so the dead plugin can never
+    // report a critical dependency loss (the residual listener itself is
+    // documented in the reference's startup-errors section).
+    savedContext = null;
     throw Object.assign(new Error('The Event Bus did not return an unsubscribe function'), {
       code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
@@ -72,8 +85,6 @@ export async function prepare(prepareContext) {
     });
   }
   unsubscribeUnavailable = subscribed;
-  prepareContext.onDeactivated = () => teardown();
-  prepareContext.onShutdown = async () => teardown();
   return [{ name: SERVICE_NAME, object: createService(state) }];
 }
 

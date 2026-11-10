@@ -10,7 +10,8 @@ Round-2 and round-3 review fixes. MINOR: a new declared startup code replaces th
 
 - The two startup failures of `prepare` (missing Event Bus, missing unsubscribe function) carry the dedicated `EXPORT_EVENT_BUS_INVALID` instead of reusing the operational `EXPORT_INVALID_INPUT` — a host error is no longer indistinguishable from a bad `exportZip` input; registered in the reference (tests updated, missing-unsubscribe test added).
 - The last two stale `events: null` test calls are gone (the second-pass CHANGELOG claim is now literally true); `micromark` is an explicit devDependency of the test that imports it (no ghost transitive reliance); the README structure list matches the actual sources and test files; requirement 8 now documents the `core:service-unavailable` listener.
-- `pey.markdown` pin moves to `#v1.2.1` (the review-fixed release of the renderer).
+- `pey.markdown` pin moves to `#v1.2.1` (the review-fixed release of the renderer), and the pinned renderer was verified for real: the installed tree now carries 1.2.1 and the whole suite (including the parity tests) runs against it. Note for publishing: a remote install resolves the tag only once `v1.2.1` is pushed to GitHub.
+- The broken `missing-unsubscribe` startup path no longer leaves an armed safety net: the cleanup hooks are armed before any failible step and the saved context is disarmed before the throw, so the orphaned listener the host may keep can never report a critical dependency loss (documented in the reference); `.npmrc` uses a value npm actually accepts (`allow-git=all`) and the git-host policy lives in the requirements (10-3); the reference events section now documents the `core:service-unavailable` listener.
 
 ## [1.0.1] - 1405-08-15
 

@@ -135,19 +135,36 @@ test('should_fail_startup_loudly_when_the_event_bus_contract_is_missing', async 
   );
 });
 
-test('should_fail_startup_loudly_when_the_event_bus_returns_no_unsubscribe', async () => {
+test('should_fail_startup_loudly_without_leaving_an_armed_safety_net_when_the_event_bus_returns_no_unsubscribe', async () => {
   // The second half of the Event Bus contract: subscribe must return an
-  // unsubscribe function, otherwise the safety net can never be released.
+  // unsubscribe function. The host may have registered the listener before
+  // breaking its own contract — the orphaned handler must be inert (the
+  // saved context is disarmed before the throw), and the host must still
+  // receive cleanup hooks armed before any failible step.
+  const reported = [];
+  const bus = {
+    listener: null,
+    subscribe(type, handler) {
+      this.listener = handler;
+      return 'nope';
+    },
+  };
+  const context = {
+    config: {},
+    events: bus,
+    onShutdown: null,
+    onDeactivated: null,
+    reportCriticalError: (error) => reported.push(error),
+  };
+
   await assert.rejects(
-    () => prepare({
-      config: {},
-      events: { subscribe: () => 'nope' },
-      onShutdown: null,
-      onDeactivated: null,
-      reportCriticalError: () => {},
-    }),
+    () => prepare(context),
     (error) => error.code === 'EXPORT_EVENT_BUS_INVALID'
       && error.type === 'startup'
       && error.detail?.reason === 'missing-unsubscribe',
   );
+
+  assert.equal(typeof context.onShutdown, 'function', 'cleanup hooks survive the failure');
+  bus.listener({ data: { serviceName: 'pey.markdown.service' } });
+  assert.deepEqual(reported, [], 'the orphaned listener can never report a critical error');
 });

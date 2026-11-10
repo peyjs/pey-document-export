@@ -47,7 +47,7 @@ const { blob, filename } = await service.exportZip({ documents: [{ markdown: '# 
 
 ## ایونت‌ها
 
-هیچ‌کدام — خروجی محاسبه خالص است و رخداد دامنه‌ای رخ نمی‌دهد.
+هیچ رویداد دامنه‌ای منتشر نمی‌شود — خروجی محاسبه خالص است. اما در `prepare` به رویداد سیستمی `core:service-unavailable` گوش داده می‌شود تا از دست رفتن `pey.markdown.service` با گزارش critical اعلام شود؛ اشتراک در خاموشی/غیرفعال‌سازی و prepare تکراری آزاد می‌شود.
 
 ## نکته‌های مرزی
 
@@ -64,4 +64,4 @@ const { blob, filename } = await service.exportZip({ documents: [{ markdown: '# 
 
 ## خطاهای راه‌اندازی
 
-علاوه بر کدهای عملیاتی متدها، شکست‌های زمان `prepare` با کد اختصاصی `EXPORT_EVENT_BUS_INVALID` (type `startup`) گزارش می‌شوند: نبود Event Bus (`detail.reason: 'missing-event-bus'`) و برنگشتن تابع unsubscribe از `subscribe` (`detail.reason: 'missing-unsubscribe'`) — نقض قرارداد میزبان است، نه ورودی نامعتبر متد.
+علاوه بر کدهای عملیاتی متدها، شکست‌های زمان `prepare` با کد اختصاصی `EXPORT_EVENT_BUS_INVALID` (type `startup`) گزارش می‌شوند: نبود Event Bus (`detail.reason: 'missing-event-bus'`) و برنگشتن تابع unsubscribe از `subscribe` (`detail.reason: 'missing-unsubscribe'`) — نقض قرارداد میزبان است، نه ورودی نامعتبر متد. در شاخهٔ دوم، شنوندهای که میزبان پیش از نقض قراردادش ثبت کرده بدون تابع unsubscribe رهایشدنی است — افزونه زمینهٔ ذخیره‌شده را خنثی می‌کند تا آن شنوندهٔ یتیم هرگز گزارش critical ندهد.
