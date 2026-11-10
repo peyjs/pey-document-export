@@ -168,3 +168,35 @@ test('should_fail_startup_loudly_without_leaving_an_armed_safety_net_when_the_ev
   bus.listener({ data: { serviceName: 'pey.markdown.service' } });
   assert.deepEqual(reported, [], 'the orphaned listener can never report a critical error');
 });
+
+test('should_fail_startup_structured_and_disarm_the_listener_when_subscribe_throws_mid_registration', async () => {
+  // The third contract-violation shape: subscribe registers the listener
+  // and then throws. The orphaned handler must be inert (saved context
+  // disarmed) and the raw host error must not cross the boundary raw.
+  const reported = [];
+  const bus = {
+    listener: null,
+    subscribe(type, handler) {
+      this.listener = handler;
+      throw new Error('bus exploded mid-registration');
+    },
+  };
+  const context = {
+    config: {},
+    events: bus,
+    onShutdown: null,
+    onDeactivated: null,
+    reportCriticalError: (error) => reported.push(error),
+  };
+
+  await assert.rejects(
+    () => prepare(context),
+    (error) => error.code === 'EXPORT_EVENT_BUS_INVALID'
+      && error.type === 'startup'
+      && error.detail?.reason === 'subscribe-threw'
+      && error.detail?.cause === 'bus exploded mid-registration',
+  );
+
+  bus.listener({ data: { serviceName: 'pey.markdown.service' } });
+  assert.deepEqual(reported, [], 'the orphaned listener can never report a critical error');
+});

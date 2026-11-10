@@ -67,7 +67,24 @@ export async function prepare(prepareContext) {
       detail: { reason: 'missing-event-bus' },
     });
   }
-  const subscribed = subscribe.call(prepareContext.events, 'core:service-unavailable', handleServiceUnavailable);
+  let subscribed;
+  try {
+    subscribed = subscribe.call(prepareContext.events, 'core:service-unavailable', handleServiceUnavailable);
+  } catch (error) {
+    // Third contract-violation shape: subscribe itself throws mid-work. The
+    // host may have registered the listener before the throw — disarm the
+    // saved context so the orphaned handler is inert, and wrap the raw host
+    // error into the same structured startup code as the other two shapes
+    // (nothing raw crosses the boundary).
+    savedContext = null;
+    throw Object.assign(new Error('The Event Bus subscribe failed mid-registration'), {
+      code: 'EXPORT_EVENT_BUS_INVALID',
+      source: SERVICE_NAME,
+      type: 'startup',
+      timestamp: new Date().toISOString(),
+      detail: { reason: 'subscribe-threw', cause: error?.message ?? String(error) },
+    });
+  }
   if (typeof subscribed !== 'function') {
     // The host broke its own contract AFTER the listener was registered:
     // no unsubscribe handle exists to remove it. Disarming the saved
