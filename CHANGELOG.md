@@ -2,14 +2,16 @@
 
 All notable changes to `pey.document-export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
 
-## [1.1.0] - 1405-08-17
+## [1.1.0] - 1405-08-20
 
-Round-2 and round-3 review fixes. MINOR: a new declared startup code replaces the reused operational one and the pey.markdown pin moves.
+Round-2 through round-6 review fixes (all unpublished; one release). MINOR: a new declared startup code replaces the reused operational one and the git-dependency pins move to exact SHAs.
 
 ### Fixed (third review pass)
 
 - The two startup failures of `prepare` (missing Event Bus, missing unsubscribe function) carry the dedicated `EXPORT_EVENT_BUS_INVALID` instead of reusing the operational `EXPORT_INVALID_INPUT` — a host error is no longer indistinguishable from a bad `exportZip` input; registered in the reference (tests updated, missing-unsubscribe test added).
 - The last two stale `events: null` test calls are gone (the second-pass CHANGELOG claim is now literally true); `micromark` is an explicit devDependency of the test that imports it (no ghost transitive reliance); the README structure list matches the actual sources and test files; requirement 8 now documents the `core:service-unavailable` listener.
+- Both git dependencies are pinned to exact commit SHAs: `pey.markdown` (`bda7ac3…`, the renderer's 1.2.1) and `parsneshan` (`cb8f055…`) — a re-pointed tag can never swap dependency code under this package again.
+- The installed `pey.markdown` tree was verified content-identical to the pinned SHA (byte-for-byte over the 19 published files, hidden lockfile aligned) and the whole suite — including the parity tests — runs against it. Publishing note: a fresh `npm ci` re-resolves from GitHub, so the pinned SHAs must be pushed there first; the verification documented here is the local content comparison, not a remote install.
 - `pey.markdown` is pinned to the exact commit SHA (`a0f12d6…`, the content of the renderer's 1.2.1) instead of a movable tag: a re-pointed tag can never swap the renderer code under this package again. The installed tree carries exactly the pack file set and the whole suite (including the parity tests) runs against it. Note for publishing: a fresh `npm ci` re-resolves from GitHub, so the pinned SHA must be pushed there first.
 - The third Event Bus contract-violation shape is covered: a `subscribe` that registers the listener and then throws disarms the saved context and crosses the boundary as the same structured `EXPORT_EVENT_BUS_INVALID` (`detail.reason: 'subscribe-threw'`, original message in `detail.cause`) — never a raw host error (test added).
 - The broken `missing-unsubscribe` startup path no longer leaves an armed safety net: the cleanup hooks are armed before any failible step and the saved context is disarmed before the throw, so the orphaned listener the host may keep can never report a critical dependency loss (documented in the reference); `.npmrc` uses a value npm actually accepts (`allow-git=all`) and the git-host policy lives in the requirements (10-3); the reference events section now documents the `core:service-unavailable` listener.
