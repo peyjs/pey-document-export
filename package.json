@@ -31,7 +31,7 @@
     "@codemirror/language": "^6.12.4",
     "@codemirror/state": "^6.7.4",
     "micromark": "^4.0.2",
-    "pey.markdown": "github:peyjs/pey-markdown#bda7ac34037d445b8de2fa0394041083c434d520"
+    "pey.markdown": "github:peyjs/pey-markdown#92b75e29d610de55081c8590c002ec0bbabcafe5"
   },
   "files": [
     "manifest.json",
