@@ -11,8 +11,8 @@
 - `lib/persian-extensions.js` — افزونه‌های micromark پارس‌نشان.
 - `lib/mark-extension.js` — اکستنشن محلی `==هایلایت==`.
 - `lib/assemble-document.js` — اسمبل سند کامل با CSS سه تم.
-- `lib/export-zip.js` — بستن آرشیو zip و قاعدهٔ نام فایل.
-- `lib/file-names.js` — sanitize و پسوند شمارشی مسیرها.
+- `lib/export-zip.js` — بستن آرشیو zip و پسوند شمارشی مسیرهای تکراری.
+- `lib/file-names.js` — قاعدهٔ مشترک نام فایل (sanitize و عنوان پیش‌فرض).
 - `tests/` — آزمون‌های افزونه (`index`، `export-service`، `export-zip`، `file-names`، `assemble-document`، `mark-extension`، `export-parity`).
 - `docs/reference.md` — مرجع کامل خودکفا.
 - `CHANGELOG.md` — تاریخچه نسخه‌های این افزونه.

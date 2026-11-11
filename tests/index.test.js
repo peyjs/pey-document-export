@@ -128,6 +128,25 @@ test('should_leave_no_stale_listener_when_prepare_runs_twice', async () => {
   assert.equal(second.events.subscriptions.has('core:service-unavailable'), false);
 });
 
+test('should_leave_the_live_call_untouched_when_a_superseded_contexts_hook_fires', async () => {
+  // The host may still invoke the hooks of a prepare context that a second
+  // prepare() superseded: those hooks release ONLY their own call's
+  // resources — the live listener stays armed and the live dependency
+  // reference keeps the service working.
+  const first = createPrepareContext();
+  await prepare(first);
+  const second = createPrepareContext();
+  const provided = await prepare(second);
+  await activate({ 'pey.markdown.service': createMarkdownService() });
+
+  first.onDeactivated();
+
+  assert.equal(second.events.subscriptions.has('core:service-unavailable'), true, 'the live listener stays armed');
+  const service = provided[0].object;
+  const result = await service.exportHtml({ markdown: '# عنوان\n\nمتن' }).catch((caught) => caught);
+  assert.equal(result?.code, undefined, 'the live dependency reference was not torn down');
+});
+
 test('should_fail_startup_loudly_when_the_event_bus_contract_is_missing', async () => {
   await assert.rejects(
     () => prepare({ config: {}, events: {}, onShutdown: null, onDeactivated: null, reportCriticalError: () => {} }),

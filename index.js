@@ -2,8 +2,11 @@
 import { MARKDOWN_SERVICE, SERVICE_NAME, createService } from './lib/export-service.js';
 
 const state = { markdown: null };
-let savedContext = null;
-let unsubscribeUnavailable = null;
+// Per-prepare-call record: each call's hooks release ONLY that call's
+// resources. A host may still invoke the hooks of a prepare context that a
+// later prepare() superseded — those hooks must then leave the live call's
+// listener and dependency reference alone.
+let current = null;
 
 /**
  * Reports a critical error when the required Markdown service disappears at
@@ -12,10 +15,10 @@ let unsubscribeUnavailable = null;
  * @returns {void}
  */
 function handleServiceUnavailable(event) {
-  if (event?.data?.serviceName !== MARKDOWN_SERVICE || !savedContext) {
+  if (event?.data?.serviceName !== MARKDOWN_SERVICE || !current?.context) {
     return;
   }
-  savedContext.reportCriticalError({
+  current.context.reportCriticalError({
     code: 'REQUIRED_DEPENDENCY_LOST',
     message: `Required service ${MARKDOWN_SERVICE} is no longer available`,
     source: SERVICE_NAME,
@@ -25,16 +28,28 @@ function handleServiceUnavailable(event) {
 }
 
 /**
- * Releases this prepare() call's resources: the dependency reference goes
- * away and the core:service-unavailable listener leaves the Event Bus, so a
- * lost-dependency event after shutdown can never report a critical error
- * for a dead plugin.
+ * Releases one prepare() call's resources exactly once: its
+ * core:service-unavailable listener leaves the Event Bus (a lost-dependency
+ * event after release can never report a critical error for a dead plugin),
+ * and — only when the released call is still the CURRENT one — the
+ * dependency reference goes away too. A superseded call's hook finds
+ * `current` pointing elsewhere and touches nothing of the live call.
+ * @param {object} record The prepare call's own resource record.
+ * @returns {void}
  */
-function teardown() {
-  state.markdown = null;
-  if (unsubscribeUnavailable !== null) {
-    unsubscribeUnavailable();
-    unsubscribeUnavailable = null;
+function releaseCall(record) {
+  if (record.released) {
+    return;
+  }
+  record.released = true;
+  if (record.unsubscribe !== null) {
+    const unsubscribe = record.unsubscribe;
+    record.unsubscribe = null;
+    unsubscribe();
+  }
+  if (current === record) {
+    current = null;
+    state.markdown = null;
   }
 }
 
@@ -45,20 +60,25 @@ function teardown() {
  */
 export async function prepare(prepareContext) {
   // A repeated prepare() call must not leave the previous call's listener
-  // behind on the Event Bus.
-  teardown();
-  savedContext = prepareContext;
+  // behind on the Event Bus: the previous record is released through its
+  // own hook path, so a later invocation of that context's hooks no-ops.
+  if (current !== null) {
+    releaseCall(current);
+  }
+  const record = { context: prepareContext, unsubscribe: null, released: false };
+  current = record;
   // The cleanup hooks are armed BEFORE any failible step: a prepare that
   // throws at any point still leaves the host a hook that releases this
   // call's resources.
-  prepareContext.onDeactivated = () => teardown();
-  prepareContext.onShutdown = async () => teardown();
+  prepareContext.onDeactivated = () => releaseCall(record);
+  prepareContext.onShutdown = async () => releaseCall(record);
   // The runtime dependency-loss safety net needs the Event Bus contract:
   // its absence is a broken host, so it fails loudly at startup instead of
   // silently arming nothing.
   const subscribe = prepareContext.events?.subscribe;
   if (typeof subscribe !== 'function') {
-    savedContext = null;
+    releaseCall(record);
+    current = null;
     throw Object.assign(new Error('Prepare context does not provide an Event Bus'), {
       code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
@@ -76,7 +96,8 @@ export async function prepare(prepareContext) {
     // saved context so the orphaned handler is inert, and wrap the raw host
     // error into the same structured startup code as the other two shapes
     // (nothing raw crosses the boundary).
-    savedContext = null;
+    releaseCall(record);
+    current = null;
     throw Object.assign(new Error('The Event Bus subscribe failed mid-registration'), {
       code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
@@ -92,7 +113,8 @@ export async function prepare(prepareContext) {
     // immediately without a saved context, so the dead plugin can never
     // report a critical dependency loss (the residual listener itself is
     // documented in the reference's startup-errors section).
-    savedContext = null;
+    releaseCall(record);
+    current = null;
     throw Object.assign(new Error('The Event Bus did not return an unsubscribe function'), {
       code: 'EXPORT_EVENT_BUS_INVALID',
       source: SERVICE_NAME,
@@ -101,7 +123,7 @@ export async function prepare(prepareContext) {
       detail: { reason: 'missing-unsubscribe' },
     });
   }
-  unsubscribeUnavailable = subscribed;
+  record.unsubscribe = subscribed;
   return [{ name: SERVICE_NAME, object: createService(state) }];
 }
 
