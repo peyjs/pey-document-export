@@ -4,7 +4,7 @@ All notable changes to `pey.document-export` are documented in this file. The fo
 
 ## [1.1.0] - 1405-08-20
 
-Round-2 through round-7 review fixes (all unpublished; one release). MINOR: a new declared startup code replaces the reused operational one and the git-dependency pins move to exact SHAs.
+Round-2 through round-9 review fixes (all unpublished; one release). MINOR: a new declared startup code replaces the reused operational one and the git-dependency pins move to exact SHAs.
 
 ### Fixed (third review pass)
 
