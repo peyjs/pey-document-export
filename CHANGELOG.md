@@ -2,9 +2,7 @@
 
 All notable changes to `pey.document-export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
 
-## [1.1.0] - 1405-08-20
-
-Round-2 through round-21 review fixes (all unpublished; one release). MINOR: a new declared startup code replaces the reused operational one and the git-dependency pins move to exact SHAs.
+## [1.1.0] - 1405-08-22
 
 ### Fixed
 
