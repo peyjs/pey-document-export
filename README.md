@@ -1,29 +1,37 @@
 # pey.document-export
 
-افزونه پی: خروجی گرفتن از اسناد متنی — سند HTML مستقل فارسیِ راست‌به‌چپ با تم (رندر Markdown روی `pey.markdown.service`) و آرشیو zip چندسندی از فایل‌های Markdown. برای خروجی داده عمومی (CSV، اکسل، Word و…) نیست.
+[![AI](https://img.shields.io/badge/Built%20with-AI-blueviolet)](#)
+[![version](https://img.shields.io/badge/version-1.1.0-blue.svg)](#)
+[![license](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Bonyan Architecture](https://img.shields.io/badge/bonyan-0.11-56c3bf)](https://github.com/barnevis/bonyan)
+
+## هدف
+
+افزونه‌ی ویژگی (feature) از زیست‌بوم پی برای خروجی گرفتن از اسناد متنی: سند HTML مستقلِ فارسیِ راست‌به‌چپ با تم (رندر Markdown روی `pey.markdown.service`) و آرشیو zip چندسندی از فایل‌های Markdown. برای خروجی دادهٔ عمومی (CSV، اکسل، Word و…) نیست.
 
 ## ساختار
 
-- `docs/requirements.md` — نیازمندی‌ها؛ منبع حقیقت ساخت افزونه.
-- `manifest.json` — قرارداد معتبر افزونه.
-- `index.js` — نقطه‌های ورود `prepare` و `activate` بنیان (فقط سیم‌کشی).
-- `lib/export-service.js` — پیاده‌سازی سرویس.
-- `lib/persian-extensions.js` — افزونه‌های micromark پارس‌نشان.
-- `lib/mark-extension.js` — اکستنشن محلی `==هایلایت==`.
-- `lib/assemble-document.js` — اسمبل سند کامل با CSS سه تم.
-- `lib/export-zip.js` — بستن آرشیو zip و پسوند شمارشی مسیرهای تکراری.
-- `lib/file-names.js` — قاعدهٔ مشترک نام فایل (sanitize و عنوان پیش‌فرض).
-- `tests/` — آزمون‌های افزونه (`index`، `export-service`، `export-zip`، `file-names`، `assemble-document`، `mark-extension`، `export-parity`).
-- `docs/reference.md` — مرجع کامل خودکفا.
-- `CHANGELOG.md` — تاریخچه نسخه‌های این افزونه.
+- `docs/` — سندهای پروژه.
+- `lib/` — منطق سرویس و افزونه‌های رندر.
+- `tests/` — آزمون‌های افزونه.
+- `index.js` — نقطه‌ی ورود.
+- `manifest.json` — قرارداد افزونه.
 
 ## وابستگی‌ها
 
-- **لازم:** `pey.markdown.service` — رندر fragment؛ همه متدها بدون آن صریح fail می‌شوند.
-- **اختیاری:** هیچ‌کدام.
+- **الزامی:** `pey.markdown.service` — رندر Markdown؛ هر دو متد بدون آن صریحاً شکست می‌خورند.
+- **اختیاری:** ندارد.
 
-## همچنین ببینید
+## نصب و استفاده
 
-- `docs/requirements.md` برای «چه چیزی و چرا»؛ سندِ پیش از پیاده‌سازی.
-- `docs/reference.md` برای قرارداد کامل متد و خطاها.
-- `pey.markdown` (رپوی جدا) برای پایپ‌لاین رندر و sanitize.
+افزونه با `manifest.json` و بستهٔ npm به برنامه‌ی میزبان افزوده می‌شود و پس از دو فاز آماده‌سازی و فعال‌سازی، سرویس `pey.document-export.service` را عرضه می‌کند. `exportHtml` متن Markdown را به سند مستقل با تم (`light`، `dark`، `sepia`) تبدیل می‌کند و `exportZip` چند سند Markdown را در یک آرشیو می‌بندد. جزئیات کامل در [مرجع](docs/reference.md).
+
+## مجوز
+
+این پروژه با مجوز MIT منتشر شده است؛ متن کامل در [LICENSE](LICENSE).
+
+## سندهای مرتبط
+
+- [معرفی](docs/introduction.md) — شناخت افزونه به زبان ساده.
+- [مرجع](docs/reference.md) — API، رویدادها، خطاها و پیکربندی.
+- [نیازمندی‌ها](docs/requirements.md) — سند ساخت افزونه، مکتوب پیش از پیاده‌سازی.

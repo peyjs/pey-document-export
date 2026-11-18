@@ -1,35 +1,41 @@
-# Changelog — pey.document-export
+# تاریخچه تغییرات
 
-All notable changes to `pey.document-export` are documented in this file. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versioning follows the Bonyan architecture rules.
+تمام تغییرات این پروژه در همین فایل ثبت می‌شود.
+قالب فایل بر پایه‌ی [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) و نسخه‌گذاری بر پایه‌ی [Semantic Versioning](https://semver.org/) است.
 
 ## [1.1.0] - 1405-08-22
 
-### Fixed
+### برطرف‌شده
 
-- **Both git dependencies are pinned to exact commit SHAs**: `pey.markdown` (`5afb56c…`, whose local `v1.2.1` tag names exactly this commit) and `parsneshan` (`cb8f055…`) — a re-pointed tag can never swap dependency code under this package. Pin moves follow requirement 10-4 (the SHA must be pushable first) and every pin move requires a byte-for-byte verification of the installed tree plus a green suite per requirement 10-5; the push-first rule and the initial transitional exception are both recorded in the requirements.
-- **Each `prepare()` call owns its cleanup**: the hooks are bound to per-call records, so invoking a superseded context's `onShutdown`/`onDeactivated` releases only THAT call's listener and can no longer tear down the live call's Event Bus listener or dependency reference.
-- **Event Bus contract violations are structured**: the two startup failures of `prepare` (missing Event Bus, missing unsubscribe function) and a `subscribe` that registers then throws carry the dedicated `EXPORT_EVENT_BUS_INVALID` (`detail.reason`, original message in `detail.cause`) — never a raw host error or a reused input code.
-- Misc: `exportZip` enforces the Markdown dependency like `exportHtml`; stale `events: null` calls and the dead test bullet are gone; `micromark` is an explicit devDependency of the test that imports it; the README structure list matches the sources; the `parsneshan` lockfile entry's version matches the pinned commit; `.npmrc` uses a value npm accepts (54 tests).
+- وابستگی‌های گیت `pey.markdown` و `parsneshan` به کامیت‌های دقیق پین شدند تا تعویض تگ، کد وابسته را عوض نکند.
+- قلاب‌های خاموشی و غیرفعال‌سازی به رکورد هر فراخوانی `prepare` پیوند شدند.
+- نقض قرارداد Event Bus در زمان راه‌اندازی با کد ساخت‌یافتهٔ `EXPORT_EVENT_BUS_INVALID` گزارش می‌شود.
+- `exportZip` نبود وابستگی Markdown را مثل `exportHtml` اجرا می‌کند.
+- مرجع‌های کهنهٔ `events` از کد و مستندات پاک شدند.
+- `micromark` به‌صورت devDependency صریح آزمون parity اعلام شد.
+- نسخهٔ `parsneshan` در lockfile با کامیت پین‌شده همگام شد و مقدار `.npmrc` به شکلی که npm می‌پذیرد اصلاح شد.
+- فهرست ساختار README با سورس‌ها همگام شد.
 
 ## [1.0.1] - 1405-08-15
 
-### Fixed
+### برطرف‌شده
 
-- `==highlight==` now survives to the final HTML: pey.markdown 1.2.0 allowlists `<mark>`, and the parity test is unskipped; the dependency bumped to `github:peyjs/pey-markdown#v1.2.0`.
-- `exportZip` enforces the Markdown dependency like `exportHtml` (`EXPORT_MARKDOWN_UNAVAILABLE`), declared in the manifest per requirement 4-10 ("both methods").
-- The `core:service-unavailable` subscription is released on shutdown/deactivation (and on a repeated `prepare()`); the `activate()` missing-dependency failure is a structured startup error; unused `state.events` removed; the theme error message no longer embeds raw host input.
+- هایلایت `==...==` در خروجی نهایی HTML زنده ماند و وابستگی Markdown به `v1.2.0` ارتقا یافت.
+- `exportZip` نبود وابستگی Markdown را با `EXPORT_MARKDOWN_UNAVAILABLE` اجرا می‌کند.
+- اشتراک `core:service-unavailable` پس از خاموشی، غیرفعال‌سازی یا فراخوانی دوبارهٔ `prepare` آزاد می‌شود.
+- شکست فعال‌سازی به‌واسطهٔ نبود وابستگی، خطای ساخت‌یافتهٔ راه‌اندازی می‌شود.
+- عنوان غیررشته‌ای رکورد zip به عنوان پیش‌فرض خوانده می‌شود.
+- نبود یا نقض قرارداد Event Bus در زمان راه‌اندازی بلند شکست می‌خورد و ZipWriter در شکست بسته می‌شود.
 
-### Fixed (second review pass)
+### دگرگون‌شده
 
-- A non-string `title` in a zip record reads as the default title instead of crashing the whole archive (matching the documented lenient shapes).
-- A missing or contract-breaking Event Bus in the prepare context fails loudly at startup instead of silently arming nothing; the ZipWriter closes on failure without masking the original error; the stale `{ markdown, events }` JSDoc/`events: null` references are gone.
+- آزمون‌ها به‌شکل آینهٔ فایل‌های سورس چیده شدند و پوشش مرزی گسترش یافت.
 
-### Tests
+## [1.0.0] - 1405-08-08
 
-- Test layout mirrors the sources (`index.test.js`, new `file-names.test.js` / `assemble-document.test.js` / `mark-extension.test.js`), with edge coverage for dot segments, ` (3)` suffixes, lenient zip records, `</title>` escaping, shutdown unsubscribe, the documented highlight divergences (triple-run literal, flanking spaces), the double-prepare listener release and the loud missing-bus startup (51 tests, 0 skipped).
+نخستین انتشار در زیست‌بوم پی: خروجی سند Markdown به‌شکل HTML مستقل فارسیِ راست‌به‌چپ با سه تم (`exportHtml`) و آرشیو zip چندسندی مارک‌داون (`exportZip`)؛ پیش از این انتشار به‌صورت `parsinegar.export` پرورش یافته بود.
 
-## [1.0.0] - 2026-10-30
-
-Initial pey release: Markdown document export — `exportHtml` renders with Persian (Parsneshan) extensions and a local `==highlight==` extension over `pey.markdown.service` and assembles a standalone RTL document (`lang="fa" dir="rtl"`, light/dark/sepia inline themes); `exportZip` packs `{ markdown, title?, path? }` records into one Markdown zip archive (default `pey-documents.zip`, per-segment sanitizing, `..` collapse, ` (2)` suffix on repeats, input order preserved). Declares its dependencies explicitly (@zip.js/zip.js, parsneshan, micromark-util-*; test-only devDependencies include pey.markdown and CodeMirror for the parity suite). `docs/requirements.md` is the construction source of truth; non-text export (PDF, Office, CSV) is an explicit non-goal for this plugin.
-
-> Incubated in Parsinegar as `parsinegar.export` (0.1.0–0.2.0): generalized to the ecosystem and renamed `pey.export` → `pey.document-export` before this release. That history stays with the source project — the pey release lineage starts here.
+[منتشرنشده]: https://github.com/peyjs/pey-document-export/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/peyjs/pey-document-export/compare/v1.0.1...v1.1.0
+[1.0.1]: https://github.com/peyjs/pey-document-export/compare/v1.0.0...v1.0.1
+[1.0.0]: https://github.com/peyjs/pey-document-export/releases/tag/v1.0.0
